@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H5 视频转 GIF 工具</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://unpkg.com">
+  <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="header-main">
+        <h1 class="app-title">视频转 GIF 工具</h1>
+        <p class="app-subtitle">上传视频，选择片段，一键生成高质量 GIF 动图</p>
+      </div>
+
+    </header>
+
+    <main class="app-main">
+      <section class="panel upload-panel">
+        <h2 class="panel-title">1. 上传视频</h2>
+        <div id="dropZone" class="drop-zone">
+          <div class="drop-zone-inner">
+            <div class="drop-icon">📁</div>
+            <p class="drop-title">拖拽视频文件到此处</p>
+            <p class="drop-subtitle">或点击选择文件，支持 MP4 / WebM 等常见格式</p>
+            <button type="button" id="selectFileBtn" class="btn primary-btn">选择文件</button>
+            <p class="drop-hint">建议单个文件大小不超过 100MB</p>
+          </div>
+          <input type="file" id="fileInput" accept="video/*" class="file-input">
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+      </section>
+
+      <section class="panel preview-panel">
+        <h2 class="panel-title">2. 视频预览</h2>
+        <div class="video-wrapper">
+          <video id="videoPlayer" class="video-player" controls></video>
+        </div>
+        <div class="video-meta">
+          <div class="meta-item">
+            <span>总时长</span>
+            <span id="totalDuration">--:--:--</span>
+          </div>
+          <div class="meta-item">
+            <span>当前时间</span>
+            <span id="currentTime">--:--:--</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel clip-panel">
+        <h2 class="panel-title">3. 选择时间片段</h2>
+        <div class="time-row">
+          <label for="startTimeInput">开始时间</label>
+          <input id="startTimeInput" type="text" placeholder="00:00:00">
+        </div>
+        <div class="time-row">
+          <label for="endTimeInput">结束时间</label>
+          <input id="endTimeInput" type="text" placeholder="00:00:05">
+        </div>
+        <div class="time-summary">
+          <span>片段时长</span>
+          <span id="clipDuration">--:--:--</span>
+        </div>
+        <div class="time-actions">
+          <button type="button" id="previewSegmentBtn" class="btn secondary-btn">预览选中片段</button>
+          <button type="button" id="resetTimeBtn" class="btn ghost-btn">重置时间</button>
+        </div>
+      </section>
+
+      <section class="panel settings-panel">
+        <h2 class="panel-title">4. GIF 参数设置</h2>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label for="sizeSelect">尺寸</label>
+            <select id="sizeSelect">
+              <option value="small">小（宽 320px）</option>
+              <option value="medium" selected>中（宽 480px）</option>
+              <option value="large">大（宽 720px）</option>
+              <option value="original">原始尺寸</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="fpsRange">帧率 <span id="fpsValue">15 fps</span></label>
+            <input id="fpsRange" type="range" min="5" max="30" step="1" value="15">
+          </div>
+          <div class="setting-item">
+            <label for="qualityRange">质量 <span id="qualityValue">10</span></label>
+            <input id="qualityRange" type="range" min="1" max="20" step="1" value="10">
+          </div>
+          <div class="setting-item">
+            <label for="speedRange">抽帧速度 <span id="speedValue">4x</span></label>
+            <input id="speedRange" type="range" min="1" max="8" step="1" value="4">
+          </div>
+          <div class="setting-item">
+            <label class="checkbox-label">
+              <input id="loopCheckbox" type="checkbox" checked>
+              无限循环播放
+            </label>
+          </div>
+        </div>
+        <div class="convert-actions">
+          <button type="button" id="convertBtn" class="btn primary-btn wide-btn">开始转换为 GIF</button>
+        </div>
+        <div class="progress-row" id="progressRow">
+          <div class="progress-bar">
+            <div class="progress-bar-inner" id="progressBar"></div>
+          </div>
+          <div class="progress-text" id="progressText">准备就绪</div>
+        </div>
+      </section>
+
+      <section class="panel result-panel">
+        <h2 class="panel-title">5. 结果预览与下载</h2>
+        <div class="result-content">
+          <div class="gif-preview-wrapper">
+            <div class="gif-placeholder" id="gifPlaceholder">
+              生成的 GIF 将显示在这里
+            </div>
+            <img id="gifPreview" class="gif-preview" alt="GIF 预览">
+          </div>
+          <div class="result-meta">
+            <div class="meta-item">
+              <span>GIF 尺寸</span>
+              <span id="gifSizeInfo">--</span>
+            </div>
+            <div class="meta-item">
+              <span>文件大小</span>
+              <span id="gifFileSize">--</span>
+            </div>
+          </div>
+          <div class="result-actions">
+            <a id="downloadLink" class="btn secondary-btn disabled" href="#" download>下载 GIF 文件</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>前端纯 H5 实现 · 本地处理 · 无需上传到服务器</span>
+    </footer>
+  </div>
+</body>
+</html>
+
